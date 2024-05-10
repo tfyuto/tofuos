@@ -153,12 +153,6 @@ EFI_STATUS EFIAPI UefiMain(
     kernel_file->GetInfo(
         kernel_file, &gEfiFileInfoGuid,
         &file_info_size, file_info_buffer);
-
-    EFI_FILE_INFO* file_info = (EFI_FILE_INFO*)file_info_buffer;
-    UINTN kernel_info_buffer[file_info_size];
-    kernel_file->GetInfo(
-        kernel_file, &gEfiFileInfoGuid,
-        &file_info_size, file_info_buffer);
     
     EFI_FILE_INFO* file_info = (EFI_FILE_INFO*)file_info_buffer;
     UINTN kernel_file_size = file_info->FileSize;
@@ -173,7 +167,7 @@ EFI_STATUS EFIAPI UefiMain(
     
     // #@@range_begin(exit_bs)
     EFI_STATUS status;
-    status = gBS->ExitBootServices(image_handle, mammap.map_key);
+    status = gBS->ExitBootServices(image_handle, memmap.map_key);
     if (EFI_ERROR(status)) {
         status = GetMemoryMap(&memmap);
         if (EFI_ERROR(status)) {
@@ -189,10 +183,10 @@ EFI_STATUS EFIAPI UefiMain(
     // #@@range_end(exit_bs)
 
     // #@@range_begin(call_kernel)
-    UINT64 entry_addr = *(UINT64*)(kernel_base_base_addr + 24);
+    UINT64 entry_addr = *(UINT64*)(kernel_base_addr + 24);
 
     typedef void EntryPointType(void);
-    EntryPointType* entry_point = (EntryPointType*)entyr_addr;
+    EntryPointType* entry_point = (EntryPointType*)entry_addr;
     entry_point();
     // #@@range_end(call_kernel)
     
